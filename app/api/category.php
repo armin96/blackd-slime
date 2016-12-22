@@ -5,7 +5,129 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app = new \Slim\App;
 
+//Get category
 
-$app->get('/api/categories',function(Request $request,Response $respone){
-    echo 'categories';
+$app->get('/api/categories', function (Request $request, Response $respone) {
+    $sql = "SELECT * FROM category";
+    try {
+        $db = new db();
+        $db = $db->connect();
+        $stem = $db->query($sql);
+        $categories = $stem->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        echo json_encode($categories);
+    } catch (PDOException $e) {
+        echo '{"error":{"text":' . $e->getMessage() . '}}';
+    }
 });
+
+//Get single category
+
+$app->get('/api/category/{id}', function (Request $request, Response $respone) {
+    $id = $request->getAttribute('id');
+    $sql = "SELECT * FROM category WHERE id=$id";
+    try {
+        //Get database object
+        $db = new db();
+        //Connect
+        $db = $db->connect();
+
+        $stem = $db->query($sql);
+        $category = $stem->fetchAll(PDO::FETCH_OBJ);
+        $db = null;
+        echo json_encode($category);
+    } catch (PDOException $e) {
+        echo '{"error":{"text":' . $e->getMessage() . '}}';
+    }
+});
+
+
+// add category
+
+$app->post('/api/category/add', function (Request $request, Response $response) {
+
+    $title = $request->getParam('title');
+    $category_id = $request->getParam('category_id');
+    $body = $request->getParam('body');
+    $sql = "INSERT INTO category (title,category_id,body) VALUES (:title,:category_id,:body)";
+    try {
+        //Get database object
+        $db = new db();
+        //Connect
+        $db = $db->connect();
+
+        $stem = $db->prepare($sql);
+        $stem->bindParam(':title', $title);
+        $stem->bindParam(':category_id', $category_id);
+        $stem->bindParam(':body', $body);
+
+        $stem->execute();
+        $db = null;
+        echo '{"notice":{"text": "category ADDED"}}';;
+    } catch (PDOException $e) {
+        echo '{"error":{"text":' . $e->getMessage() . '}}';
+    }
+
+});
+
+
+// Update category
+
+$app->put('/api/category/update/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
+
+    $title = $request->getParam('title');
+    $category_id = $request->getParam('category_id');
+    $body = $request->getParam('body');
+    $sql = "UPDATE category SET
+        title       = :title,
+        category_id = :category_id,
+        body        = :body
+        WHERE id=$id";
+    try {
+        //Get database object
+        $db = new db();
+        //Connect
+        $db = $db->connect();
+
+        $stem = $db->prepare($sql);
+        $stem->bindParam(':title', $title);
+        $stem->bindParam(':category_id', $category_id);
+        $stem->bindParam(':body', $body);
+
+        $stem->execute();
+        $db = null;
+        echo '{"notice":{"text": "category' . $id . ' Updated"}}';;
+    } catch (PDOException $e) {
+        echo '{"error":{"text":' . $e->getMessage() . '}}';
+    }
+
+});
+
+
+
+// Delete category
+
+$app->delete('/api/category/delete/{id}', function (Request $request, Response $response) {
+
+    $id = $request->getAttribute('id');
+
+    $sql = "DELETE FROM category WHERE id=$id";
+    try {
+        //Get database object
+        $db = new db();
+        //Connect
+        $db = $db->connect();
+
+        $stem = $db->prepare($sql);
+
+        $stem->execute();
+        $db = null;
+        echo '{"notice":{"text": "category ' . $id . ' Deleted"}}';;
+    } catch (PDOException $e) {
+        echo '{"error":{"text":' . $e->getMessage() . '}}';
+    }
+
+});
+
