@@ -46,10 +46,9 @@ $app->get('/api/category/{id}', function (Request $request, Response $respone) {
 
 $app->post('/api/category/add', function (Request $request, Response $response) {
 
-    $title = $request->getParam('title');
-    $category_id = $request->getParam('category_id');
-    $body = $request->getParam('body');
-    $sql = "INSERT INTO category (title,category_id,body) VALUES (:title,:category_id,:body)";
+    $name = $request->getParam('name');
+
+    $sql = "INSERT INTO category (name) VALUES (:name)";
     try {
         //Get database object
         $db = new db();
@@ -57,9 +56,8 @@ $app->post('/api/category/add', function (Request $request, Response $response) 
         $db = $db->connect();
 
         $stem = $db->prepare($sql);
-        $stem->bindParam(':title', $title);
-        $stem->bindParam(':category_id', $category_id);
-        $stem->bindParam(':body', $body);
+        $stem->bindParam(':name', $name);
+
 
         $stem->execute();
         $db = null;
@@ -77,13 +75,10 @@ $app->put('/api/category/update/{id}', function (Request $request, Response $res
 
     $id = $request->getAttribute('id');
 
-    $title = $request->getParam('title');
-    $category_id = $request->getParam('category_id');
-    $body = $request->getParam('body');
+    $name = $request->getParam('name');
+
     $sql = "UPDATE category SET
-        title       = :title,
-        category_id = :category_id,
-        body        = :body
+        name       = :name
         WHERE id=$id";
     try {
         //Get database object
@@ -92,13 +87,11 @@ $app->put('/api/category/update/{id}', function (Request $request, Response $res
         $db = $db->connect();
 
         $stem = $db->prepare($sql);
-        $stem->bindParam(':title', $title);
-        $stem->bindParam(':category_id', $category_id);
-        $stem->bindParam(':body', $body);
+        $stem->bindParam(':name', $name);
 
         $stem->execute();
         $db = null;
-        echo '{"notice":{"text": "category' . $id . ' Updated"}}';;
+        echo '{"notice":{"text": "category ' . $id . ' Updated"}}';;
     } catch (PDOException $e) {
         echo '{"error":{"text":' . $e->getMessage() . '}}';
     }
