@@ -121,6 +121,5 @@ $app->delete('/api/category/delete/{id}', function (Request $request, Response $
     } catch (PDOException $e) {
         echo '{"error":{"text":' . $e->getMessage() . '}}';
     }
-
 });
 
